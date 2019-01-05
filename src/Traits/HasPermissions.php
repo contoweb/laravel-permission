@@ -430,6 +430,7 @@ trait HasPermissions
                 });
         }
 
+        $this->loadPermissionsToGate();
         $this->forgetCachedPermissions();
 
         return $this;
@@ -522,5 +523,14 @@ trait HasPermissions
     public function forgetCachedPermissions()
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    }
+
+    /**
+     * Load all permissions to the gate.
+     */
+    public function loadPermissionsToGate()
+    {
+        app(PermissionRegistrar::class)->loadPermissionsToGate();
     }
 }

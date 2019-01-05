@@ -93,13 +93,31 @@ class PermissionRegistrar
      */
     public function registerPermissions(): bool
     {
-        $this->gate->before(function (Authorizable $user, string $ability) {
-            try {
-                if (method_exists($user, 'hasPermissionTo')) {
-                    return $user->hasPermissionTo($ability) ?: null;
+        $this->gate->before(function() {
+            $this->loadPermissionsToGate();
+        });
+
+        return true;
+    }
+
+    /**
+     * Load the permissions to the gate.
+     *
+     * @return bool
+     */
+    public function loadPermissionsToGate(): bool
+    {
+        $this->getPermissions()->map(function ($permission) {
+            $this->gate->define($permission->name, function (Authorizable $user) use ($permission) {
+                try {
+                    if (method_exists($user, 'hasPermissionTo')) {
+                        return $user->hasPermissionTo($permission) ?: null;
+                    }
+                } catch (PermissionDoesNotExist $e) {
                 }
-            } catch (PermissionDoesNotExist $e) {
-            }
+
+                return true;
+            });
         });
 
         return true;
